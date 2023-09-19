@@ -1,3 +1,4 @@
 opencv-python
-pyqt5
-pyqt5-stubs
+pynput
+pyserial
+pyside2
