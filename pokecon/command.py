@@ -5,10 +5,16 @@ import threading
 
 import cv2
 
+from pokecon.capture import Capture
+from pokecon.logging import get_logger
 from pokecon.pad import Input
+from pokecon.ports import SerialSender
 
 
 TEMPLATE_PATH = Path(__file__).parent / '../templates/'
+
+
+logger = get_logger(__name__)
 
 
 # the class For notifying stop signal is sent from Main window
@@ -44,7 +50,7 @@ class PythonCommand(Command):
     def do(cls):
         pass
 
-    def do_safe(self, ser):
+    def do_safe(self, ser: SerialSender):
         if self.input is None:
             self.input = Input(ser)
 
@@ -53,11 +59,11 @@ class PythonCommand(Command):
                 self.do()
                 self.finish()
         except StopThread:
-            print('-- finished successfully. --')
+            logger.info('-- finished successfully. --')
         except:
             if self.input is None:
                 self.input = Input(ser)
-            print('interruppt')
+            logger.error('interrupt')
             import traceback
             traceback.print_exc()
             self.input.end()
@@ -76,7 +82,7 @@ class PythonCommand(Command):
     def send_stop_request(self):
         if self.check_if_alive():  # try if we can stop now
             self.alive = False
-            print('-- sent a stop request. --')
+            logger.info('-- sent a stop request. --')
 
     # NOTE: Use this function if you want to get out from a command loop by yourself
     def finish(self):
@@ -92,7 +98,7 @@ class PythonCommand(Command):
         self.check_if_alive()
 
     # press button at duration times(s) repeatedly
-    def press_rep(self, buttons, repeat, duration=0.1, interval=0.1, wait=0.1):
+    def press_rep(self, buttons, repeat: int, duration=0.1, interval=0.1, wait=0.1):
         for i in range(0, repeat):
             self.press(buttons, duration, 0 if i == repeat - 1 else interval)
         self.wait(wait)
@@ -108,7 +114,7 @@ class PythonCommand(Command):
         self.check_if_alive()
 
     # do nothing at wait time(s)
-    def wait(self, wait):
+    def wait(self, wait=0.1):
         sleep(wait)
         self.check_if_alive()
 
@@ -129,12 +135,13 @@ class PythonCommand(Command):
 
 
 class ImageProcPythonCommand(PythonCommand):
-    def __init__(self, cap):
+    def __init__(self, cap: Capture):
         super().__init__()
         self.cap = cap
 
     # Judge if current screenshot contains a template using template matching
-    # It's recommended that you use gray_scale option unless the template color wouldn't be cared for performace
+    # It's recommended that you use gray_scale option
+    # unless the template color wouldn't be cared for performance
     # 現在のスクリーンショットと指定した画像のテンプレートマッチングを行います
     # 色の違いを考慮しないのであればパフォーマンスの点からuse_grayをTrueにしてグレースケール画像を使うことを推奨します
     def is_contain_template(self,
@@ -167,7 +174,7 @@ class ImageProcPythonCommand(PythonCommand):
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
 
         if show_value:
-            print(template_path + ' ZNCC value: ' + str(max_val))
+            logger.debug(f'{template_path} ZNCC value: {max_val}')
 
         if max_val > threshold:
             if use_gray:
@@ -180,9 +187,10 @@ class ImageProcPythonCommand(PythonCommand):
         else:
             return False
 
-    # Get interframe difference binarized image
+    # Get inter frame difference barbarized image
     # フレーム間差分により2値化された画像を取得
-    def get_interframe_diff(self, frame1, frame2, frame3, threshold):
+    @staticmethod
+    def get_interframe_diff(frame1, frame2, frame3, threshold):
         diff1 = cv2.absdiff(frame1, frame2)
         diff2 = cv2.absdiff(frame2, frame3)
 

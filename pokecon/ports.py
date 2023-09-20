@@ -1,7 +1,10 @@
-import os
-
 from serial import Serial
 from serial.serialutil import SerialException
+
+from pokecon.logging import get_logger
+
+
+logger = get_logger(__name__)
 
 
 class SerialSender:
@@ -11,12 +14,11 @@ class SerialSender:
 
     def open(self, port):
         try:
-            print(f'connecting to {port}')
+            logger.info(f'connecting to {port}')
             self.ser = Serial(port, 9600)
             return True
-        except IOError as e:
-            print('COM Port: cannot be established')
-            print(e)
+        except IOError:
+            logger.exception('COM Port: cannot be established')
             return False
 
     def close(self):
@@ -28,11 +30,11 @@ class SerialSender:
     def write(self, row):
         try:
             self.ser.write((row + '\r\n').encode('utf-8'))
-        except SerialException as e:
-            print(e)
+        except SerialException:
+            logger.exception()
         except AttributeError:
-            print('Attempting to use a port that is not open')
+            logger.exception('Attempting to use a port that is not open')
 
         # Show sending serial datas
         if self.show_serial:
-            print(row)
+            logger.debug(row)

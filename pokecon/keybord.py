@@ -1,6 +1,10 @@
 from pynput.keyboard import Key, Listener
 
+from pokecon.logging import get_logger
 from pokecon.pad import Input, Button, Hat, Direction
+
+
+logger = get_logger(__name__)
 
 
 # This handles keyboard interactions
@@ -18,12 +22,12 @@ class Keyboard:
 
     def on_press(self, key):
         try:
-            print('alphanumeric key {0} pressed'.format(key.char))
+            logger.info(f'alphanumeric key {key.char} pressed')
         except AttributeError:
-            print('special key {0} pressed'.format(key))
+            logger.info(f'special key {key} pressed')
 
     def on_release(self, key):
-        print('{0} released'.format(key))
+        logger.info(f'{key} released')
 
 
 # This regards a keyboard inputs as Switch controller
@@ -71,7 +75,7 @@ class KeyboardController(Keyboard):
         # super().on_press(key)
 
         if key is None:
-            print('unknown key has input')
+            logger.warning('unknown key has input')
 
         try:
             key_ = key.char
@@ -92,7 +96,7 @@ class KeyboardController(Keyboard):
 
     def on_release(self, key):
         if key is None:
-            print('unknown key has released')
+            logger.warning('unknown key has released')
 
         try:
             key_ = key.char
