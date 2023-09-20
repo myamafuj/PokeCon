@@ -2,6 +2,7 @@ import math
 from collections import OrderedDict
 from enum import IntFlag, IntEnum, Enum, auto
 
+from pokecon.logging import get_logger
 from pokecon.ports import SerialSender
 
 
@@ -9,6 +10,9 @@ from pokecon.ports import SerialSender
 MIN = 0
 CENTER = 128
 MAX = 255
+
+
+logger = get_logger(__name__)
 
 
 class Button(IntFlag):
@@ -56,7 +60,6 @@ class Tilt(Enum):
     R_LEFT = auto()
 
 
-# todo: to extend, use `aenum`
 class Direction(Enum):
     # Left stick for ease of use
     UP = (Stick.LEFT, 90)
@@ -246,7 +249,7 @@ class Input:
                 commands.append(c)
 
         # print to log
-        print(commands)
+        logger.debug(commands)
 
         self.format.set_button([c for c in commands if type(c) is Button])
         self.format.set_hat([c for c in commands if type(c) is Hat])
@@ -275,7 +278,7 @@ class Input:
 
         for c in commands:
             if c in self.holding:
-                print('Warning: ' + c.name + ' is already in holding state')
+                logger.warning(f'{c.name} is already in holding state')
                 return
 
             self.holding.append(c)

@@ -9,6 +9,11 @@ from PySide2.QtCore import (
 )
 from PySide2.QtGui import QImage
 
+from pokecon.logging import get_logger
+
+
+logger = get_logger(__name__)
+
 
 class Capture:
     def __init__(self, w, h, fps, path_dir):
@@ -36,6 +41,7 @@ class Capture:
         path = self.path_dir.joinpath(f'screenshot_{now:%Y%m%d%H%M%S}.png')
         path.parent.mkdir(exist_ok=True)
         cv2.imwrite(str(path), self.frame)
+        logger.info(f'successfully saved image: {path}')
 
 
 class CaptureThread(QThread):
