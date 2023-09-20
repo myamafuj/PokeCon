@@ -33,7 +33,7 @@ from pokecon.monitor import LogWindow
 from pokecon.utils import get_scripts, get_available_ports
 
 
-VER = '1.0.0'
+VER = '1.0.1'
 W = 1280
 H = 720
 FPS = 45
@@ -123,6 +123,7 @@ class Window(QMainWindow):
             self.buttons_command[key] = QPushButton(key)
             self.buttons_command[key].setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
             command_layout.addWidget(self.buttons_command[key], 12)
+        self.buttons_command['stop'].setEnabled(False)
 
         self.group_command.setLayout(command_layout)
 
@@ -186,13 +187,16 @@ class Window(QMainWindow):
                 self.current_script = cls()
         self.current_script.start(self.ser, self.start_command_post_process)
         self.buttons_command['start'].setEnabled(False)
+        self.buttons_command['stop'].setEnabled(True)
 
     def start_command_post_process(self):
         self.buttons_command['start'].setEnabled(True)
+        self.buttons_command['stop'].setEnabled(True)
 
     def stop_command(self):
         self.current_script.end(self.ser)
         self.buttons_command['start'].setEnabled(True)
+        self.buttons_command['stop'].setEnabled(False)
 
     def start_keyboard(self):
         self.keyboard.start()
@@ -204,9 +208,13 @@ class Window(QMainWindow):
         self.buttons_command['log'].setEnabled(False)
         geometry = QApplication.primaryScreen().geometry()
         frame_size = self.frameSize()
-        self.log_w.resize(600, frame_size.height() - 46)
-        self.log_w.move(geometry.width() / 2 + frame_size.width() / 2,
-                        geometry.height() / 2 - frame_size.height() / 2)
+        self.log_w.resize(frame_size.width() / 2, frame_size.height() - 46)
+        if geometry.width() <= 1920:
+            self.log_w.move(geometry.width() / 3 + frame_size.width() * 2 / 3,
+                            geometry.height() / 2 - frame_size.height() / 2)
+        else:
+            self.log_w.move(geometry.width() / 2 + frame_size.width() / 2,
+                            geometry.height() / 2 - frame_size.height() / 2)
         self.log_w.show()
         self.buttons_command['log'].setEnabled(True)
 
