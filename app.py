@@ -11,7 +11,12 @@ def main():
     w = Window(__file__)
     w.show()
     frame_size = w.frameSize()
-    w.move(geometry.width()/2 - frame_size.width()/2, geometry.height()/2 - frame_size.height()/2)
+    if geometry.width() <= 1920:
+        w.move(geometry.width() / 3 - frame_size.width() / 3,
+               geometry.height() / 2 - frame_size.height() / 2)
+    else:
+        w.move(geometry.width() / 2 - frame_size.width() / 2,
+               geometry.height() / 2 - frame_size.height() / 2)
     sys.exit(app.exec_())
 
 
