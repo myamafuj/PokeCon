@@ -1,7 +1,7 @@
 from serial import Serial
 from serial.serialutil import SerialException
 
-from pokecon.logging import get_logger
+from pokecon.logger import get_logger
 
 
 logger = get_logger(__name__)

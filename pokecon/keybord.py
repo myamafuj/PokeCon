@@ -1,6 +1,6 @@
 from pynput.keyboard import Key, Listener
 
-from pokecon.logging import get_logger
+from pokecon.logger import get_logger
 from pokecon.pad import Input, Button, Hat, Direction
 
 

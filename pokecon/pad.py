@@ -2,7 +2,7 @@ import math
 from collections import OrderedDict
 from enum import IntFlag, IntEnum, Enum, auto
 
-from pokecon.logging import get_logger
+from pokecon.logger import get_logger
 from pokecon.ports import SerialSender
 
 

@@ -7,7 +7,7 @@ from typing import Callable
 import cv2
 
 from pokecon.capture import Capture
-from pokecon.logging import get_logger
+from pokecon.logger import get_logger
 from pokecon.pad import Input
 from pokecon.ports import SerialSender
 
