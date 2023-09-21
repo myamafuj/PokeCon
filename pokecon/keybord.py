@@ -10,9 +10,8 @@ logger = get_logger(__name__)
 # This handles keyboard interactions
 class Keyboard:
     def __init__(self):
-        self.listener = Listener(
-            on_press=self.on_press,
-            on_release=self.on_release)
+        self.listener = Listener(on_press=self.on_press,
+                                 on_release=self.on_release)
 
     def start(self):
         self.listener.start()
