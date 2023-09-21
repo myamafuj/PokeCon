@@ -7,6 +7,7 @@ from PySide2.QtCore import (
     QSize,
     QTimer,
     QUrl,
+    Signal,
     Slot
 )
 from PySide2.QtGui import (
@@ -31,19 +32,49 @@ from PySide2.QtWidgets import (
 from pokecon.capture import Capture
 from pokecon.command import ImageProcPythonCommand
 from pokecon.keybord import KeyboardController
-from pokecon.pad import Input
-from pokecon.ports import SerialSender
 from pokecon.monitor import InfoWindow, SignalHandler
+from pokecon.pad import Input, Button
+from pokecon.ports import SerialSender
 from pokecon.utils import get_scripts, get_available_camera_id, get_available_ports
 
 
-VER = '1.1.1'
+VER = '1.2.0'
 W_DISPLAY = 1280
 H_DISPLAY = 720
 FPS_DISPLAY = 45
 W_CAP = 1920
 H_CAP = 1080
 FPS_CAP = 45
+
+
+class QVideoLabel(QLabel):
+    left_pressed = Signal()
+    left_released = Signal()
+    right_pressed = Signal()
+    right_released = Signal()
+    middle_pressed = Signal()
+    middle_released = Signal()
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def mousePressEvent(self, ev):
+        if ev.button() == Qt.LeftButton:
+            self.left_pressed.emit()
+        elif ev.button() == Qt.RightButton:
+            self.right_pressed.emit()
+        elif ev.button() == Qt.MiddleButton:
+            self.middle_pressed.emit()
+        return QLabel.mousePressEvent(self, ev)
+
+    def mouseReleaseEvent(self, ev):
+        if ev.button() == Qt.LeftButton:
+            self.left_released.emit()
+        elif ev.button() == Qt.RightButton:
+            self.right_released.emit()
+        elif ev.button() == Qt.MiddleButton:
+            self.middle_released.emit()
+        return QLabel.mouseReleaseEvent(self, ev)
 
 
 class Window(QMainWindow):
@@ -58,7 +89,6 @@ class Window(QMainWindow):
         self.signal_handler.setLevel(logging.INFO)
         self.signal_handler.emitter.message.connect(self.write)
         self.logger.addHandler(self.signal_handler)
-        # self.statusBar()
         # path
         self.root = Path(root).parent
         self.dir_img = self.root.joinpath('screenshot')
@@ -82,7 +112,7 @@ class Window(QMainWindow):
         # settings
         self.geometry = QApplication.primaryScreen().geometry()
         self.display_size_list = ['1920x1080', '1280x720']
-        self.default_display_size = self.display_size_list[1]
+        self.default_display_size = self.display_size_list[0]
         self.settings_window = SettingsWindow(self)
 
         # Title and dimensions
@@ -92,7 +122,7 @@ class Window(QMainWindow):
                             Qt.WindowType.WindowMinimizeButtonHint)
 
         # Create a label for the display camera
-        self.label_video = QLabel(self)
+        self.label_video = QVideoLabel()
         self.label_video.setFixedSize(*[int(x) for x in self.default_display_size.split('x')])
 
         # settings
@@ -175,6 +205,15 @@ class Window(QMainWindow):
         self.video_timer.timeout.connect(self.next_frame)
         self.video_timer.start(millisecond)
 
+        self.label_video.left_pressed.connect(self.left_mouse_press)
+        self.label_video.right_pressed.connect(self.right_mouse_press)
+        self.label_video.middle_pressed.connect(self.middle_mouse_press)
+        self.label_video.left_released.connect(self.left_mouse_release)
+        self.label_video.right_released.connect(self.right_mouse_release)
+        self.label_video.middle_released.connect(self.middle_mouse_release)
+
+        self.auto_playing = False
+
     def next_frame(self):
         ret, frame = self.cap.read()
         if ret:
@@ -183,6 +222,30 @@ class Window(QMainWindow):
             pix = pix.scaled(self.label_video.width(), self.label_video.height(),
                              Qt.KeepAspectRatio, Qt.SmoothTransformation)
             self.label_video.setPixmap(pix)
+
+    def left_mouse_press(self):
+        if not self.auto_playing:
+            self.input.press(Button.A)
+
+    def right_mouse_press(self):
+        if not self.auto_playing:
+            self.input.press(Button.B)
+
+    def middle_mouse_press(self):
+        if not self.auto_playing:
+            self.input.press(Button.X)
+
+    def left_mouse_release(self):
+        if not self.auto_playing:
+            self.input.press_end(Button.A)
+
+    def right_mouse_release(self):
+        if not self.auto_playing:
+            self.input.press_end(Button.B)
+
+    def middle_mouse_release(self):
+        if not self.auto_playing:
+            self.input.press_end(Button.X)
 
     @Slot(str)
     def write(self, msg):
@@ -223,6 +286,7 @@ class Window(QMainWindow):
             self.command_post_process()
 
     def start_command(self):
+        self.auto_playing = True
         if self.current_script is None:
             key = self.combobox_command.currentText()
             cls = self.scripts[key]
@@ -233,6 +297,10 @@ class Window(QMainWindow):
         self.current_script.start(self.ser, self.command_post_process)
 
     def command_pre_process(self):
+        if self.keyboard is not None:
+            self.keyboard.stop()
+            self.keyboard = None
+        self.auto_playing = True
         self.settings_window.combobox_video.setEnabled(False)
         self.settings_window.combobox_ports.setEnabled(False)
         self.combobox_command.setEnabled(False)
@@ -245,6 +313,10 @@ class Window(QMainWindow):
         self.combobox_command.setEnabled(True)
         self.buttons_command['reload'].setEnabled(True)
         self.buttons_command['start/stop'].setText('start')
+        self.auto_playing = False
+        if self.keyboard is None and (self.hasFocus() or self.isActiveWindow()):
+            self.keyboard = KeyboardController(self.input)
+            self.keyboard.start()
 
     def stop_command(self):
         self.current_script.end(self.ser)
@@ -276,11 +348,13 @@ class Window(QMainWindow):
 
     def event(self, event):
         if event.type() == QEvent.WindowActivate or event.type() == QEvent.FocusIn:
-            self.keyboard = KeyboardController(self.input)
-            self.keyboard.start()
+            if not self.auto_playing:
+                self.keyboard = KeyboardController(self.input)
+                self.keyboard.start()
         elif event.type() == QEvent.WindowDeactivate or event.type() == QEvent.FocusOut:
-            self.keyboard.stop()
-            self.keyboard = None
+            if self.keyboard is not None:
+                self.keyboard.stop()
+                self.keyboard = None
         return super().event(event)
 
     # def keyPressEvent(self, e):
