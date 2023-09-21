@@ -23,5 +23,18 @@ def get_scripts(path_dir=Path('scripts')):
     return scripts
 
 
+def get_available_camera_id():
+    import clr
+    clr.AddReference('lib\DirectShowLib-2005')
+    from DirectShowLib import DsDevice, FilterCategory
+
+    # Get names of detected camera devices
+    capture_devices = DsDevice.GetDevicesOfCat(FilterCategory.VideoInputDevice)
+    result = {device.Name: cam_id for cam_id, device in enumerate(capture_devices)}
+    if not result:
+        result = {'default': 0}
+    return result
+
+
 def get_available_ports():
     return sorted([port for port, _, _ in list_ports.comports()])

@@ -1,7 +1,8 @@
+import threading
 from abc import ABCMeta
 from pathlib import Path
 from time import sleep
-import threading
+from typing import Callable
 
 import cv2
 
@@ -11,7 +12,7 @@ from pokecon.pad import Input
 from pokecon.ports import SerialSender
 
 
-TEMPLATE_PATH = Path(__file__).parent / '../templates/'
+TEMPLATE_PATH = Path(__file__).parent.joinpath('../templates/')
 
 
 logger = get_logger(__name__)
@@ -69,7 +70,9 @@ class PythonCommand(Command):
             self.input.end()
             self.alive = False
 
-    def start(self, ser, post_process=None):
+    def start(self,
+              ser: SerialSender,
+              post_process: Callable = None):
         self.alive = True
         self.post_process = post_process
         if not self.thread:
@@ -165,7 +168,7 @@ class ImageProcPythonCommand(PythonCommand):
         # Read a template image
         path = TEMPLATE_PATH / template_path
         templ = cv2.imread(str(path),
-                              cv2.IMREAD_GRAYSCALE if use_gray else cv2.IMREAD_COLOR)
+                           cv2.IMREAD_GRAYSCALE if use_gray else cv2.IMREAD_COLOR)
         templ = templ[tmp_area[2]:tmp_area[3], tmp_area[0]:tmp_area[1]] if tmp_area else templ
         w, h = templ.shape[1], templ.shape[0]
 
@@ -203,7 +206,7 @@ class ImageProcPythonCommand(PythonCommand):
         mask = cv2.medianBlur(img_th, 3)
         return mask
 
-    # Take a screenshot (saved in /SerialController/Captures/)
+    # Take a screenshot (saved in ../screenshot/)
     # スクリーンショットを取得
     def screenshot(self):
         self.cap.screenshot()
