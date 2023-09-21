@@ -38,7 +38,7 @@ from pokecon.ports import SerialSender
 from pokecon.utils import get_scripts, get_available_camera_id, get_available_ports
 
 
-VER = '1.2.0'
+VER = '1.2.1'
 W_DISPLAY = 1280
 H_DISPLAY = 720
 FPS_DISPLAY = 45
@@ -174,6 +174,7 @@ class Window(QMainWindow):
 
         self.group_command.setLayout(command_layout)
 
+        # Bottom layout
         bottom_layout = QHBoxLayout()
         bottom_layout.addWidget(self.button_settings, 5)
         bottom_layout.addWidget(self.group_image, 25)
@@ -326,6 +327,8 @@ class Window(QMainWindow):
         frame_size = self.frameSize()
         self.info_window.resize(654, frame_size.height() - 46)
         if self.geometry.width() <= 1920:
+            self.move(self.geometry.width() / 3 + frame_size.width() / 3,
+                      self.geometry.height() / 2 - frame_size.height() / 2)
             self.info_window.move(self.geometry.width() / 3 + frame_size.width() * 2 / 3,
                                   self.geometry.height() / 2 - frame_size.height() / 2)
         else:
@@ -339,9 +342,18 @@ class Window(QMainWindow):
         self.widget.adjustSize()
         self.adjustSize()
         frame_size = self.frameSize()
-        if self.geometry.width() <= 1920:
+        if self.info_window.isVisible() and self.geometry.width() <= 1920:
             self.move(self.geometry.width() / 3 + frame_size.width() / 3,
                       self.geometry.height() / 2 - frame_size.height() / 2)
+            self.info_window.resize(654, frame_size.height() - 46)
+            self.info_window.move(self.geometry.width() / 3 + frame_size.width() * 2 / 3,
+                                  self.geometry.height() / 2 - frame_size.height() / 2)
+        elif self.info_window.isVisible():
+            self.move(self.geometry.width() / 2 - frame_size.width() / 2,
+                      self.geometry.height() / 2 - frame_size.height() / 2)
+            self.info_window.resize(654, frame_size.height() - 46)
+            self.info_window.move(self.geometry.width() / 2 + frame_size.width() / 2,
+                                  self.geometry.height() / 2 - frame_size.height() / 2)
         else:
             self.move(self.geometry.width() / 2 - frame_size.width() / 2,
                       self.geometry.height() / 2 - frame_size.height() / 2)
@@ -356,11 +368,6 @@ class Window(QMainWindow):
                 self.keyboard.stop()
                 self.keyboard = None
         return super().event(event)
-
-    # def keyPressEvent(self, e):
-    #     if e.key() == Qt.Key.Key_Q:
-    #         self.th.stop()
-    #         sys.exit()
 
     def closeEvent(self, event):
         self.video_timer.stop()
