@@ -10,11 +10,11 @@ from PySide2.QtGui import (
     QTextCursor
 )
 from PySide2.QtWidgets import (
-    QDialog,
     QPlainTextEdit,
     QPushButton,
     QSizePolicy,
-    QVBoxLayout
+    QVBoxLayout,
+    QWidget
 )
 
 
@@ -32,12 +32,13 @@ class SignalHandler(logging.Handler):
         self.emitter.message.emit(msg)
 
 
-class LogWindow(QDialog):
+class InfoWindow(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle('Log')
+        self.setWindowTitle('Info')
         self.setWindowFlags(Qt.WindowType.CustomizeWindowHint |
-                            Qt.WindowType.WindowCloseButtonHint)
+                            Qt.WindowType.WindowCloseButtonHint |
+                            Qt.WindowType.WindowMinimizeButtonHint)
 
         # メインレイアウト
         layout = QVBoxLayout()
@@ -48,7 +49,7 @@ class LogWindow(QDialog):
         self.editor.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
 
         self.logger = logging.getLogger()
-        formatter = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
+        formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(name)s:\n%(message)s\n')
         self.signal_handler = SignalHandler()
         self.signal_handler.setFormatter(formatter)
         self.signal_handler.setLevel(logging.INFO)
@@ -67,6 +68,7 @@ class LogWindow(QDialog):
     def write(self, msg):
         self.editor.moveCursor(QTextCursor.End)
         self.editor.insertPlainText(msg + '\n')
+        self.editor.moveCursor(QTextCursor.End)
 
     def clear_log(self):
         self.editor.clear()
