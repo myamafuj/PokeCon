@@ -37,7 +37,7 @@ from pokecon.monitor import InfoWindow, SignalHandler
 from pokecon.utils import get_scripts, get_available_camera_id, get_available_ports
 
 
-VER = '1.1.0'
+VER = '1.1.1'
 W_DISPLAY = 1280
 H_DISPLAY = 720
 FPS_DISPLAY = 45

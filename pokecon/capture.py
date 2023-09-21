@@ -2,7 +2,7 @@ import datetime
 
 import cv2
 
-from pokecon.logging import get_logger
+from pokecon.logger import get_logger
 
 
 logger = get_logger(__name__)
