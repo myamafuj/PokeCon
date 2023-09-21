@@ -1,4 +1,6 @@
 opencv-python
 pynput
+pytesseract
 pyserial
 pyside2
+pythonnet
