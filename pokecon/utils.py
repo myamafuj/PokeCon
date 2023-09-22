@@ -20,7 +20,7 @@ def get_scripts(path_dir=Path('scripts')):
             _, c = tuple_c
             if issubclass(c, PythonCommand) and hasattr(c, 'NAME'):
                 scripts[c.NAME] = c
-    return scripts
+    return {k: scripts[k] for k in sorted(list(scripts.keys()))}
 
 
 def get_available_camera_id():
