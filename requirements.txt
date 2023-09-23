@@ -1,6 +1,6 @@
-opencv-python
-pynput
-pytesseract
-pyserial
-pyside2
-pythonnet
+opencv-python~=4.8.0.76
+pyaudio~=0.2.13
+pynput~=1.7.6
+pytesseract~=0.3.10
+pyserial~=3.5
+pyside2~=5.15.2.1
