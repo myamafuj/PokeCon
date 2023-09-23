@@ -34,7 +34,7 @@ class Command:
         pass
 
     @classmethod
-    def end(cls, ser):
+    def end(cls):
         pass
 
 
@@ -67,7 +67,6 @@ class PythonCommand(Command):
             if self.input is None:
                 self.input = Input(ser)
             logger.error(e, exc_info=True)
-            self.input.end()
             self.finish()
 
     def start(self,
@@ -79,18 +78,19 @@ class PythonCommand(Command):
             self.thread = threading.Thread(target=self.do_safe, args=(ser,))
             self.thread.start()
 
-    def end(self, ser):
+    def end(self):
         self.send_stop_request()
 
     def send_stop_request(self):
         if self.check_if_alive():  # try if we can stop now
             logger.info('-- sent a stop request. --')
             self.alive = False
+            self.check_if_alive()
 
     # NOTE: Use this function if you want to get out from a command loop by yourself
     def finish(self):
-        # self.alive = False
-        self.end(self.input.ser)
+        self.alive = False
+        self.end()
 
     # press button at duration times(s)
     def press(self, buttons, duration=0.1, wait=0.1):
@@ -132,7 +132,7 @@ class PythonCommand(Command):
                 self.post_process = None
 
             # raise exception for exit working thread
-            raise StopThread('exit successfully')
+            raise StopThread()
         else:
             return True
 

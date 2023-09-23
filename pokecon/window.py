@@ -40,7 +40,7 @@ from pokecon.ports import SerialSender
 from pokecon.utils import get_scripts, get_available_camera_id, get_available_ports
 
 
-VER = '1.3.0'
+VER = '1.3.1'
 FPS_DISPLAY = 60
 W_CAP = 1920
 H_CAP = 1080
@@ -349,7 +349,7 @@ class Window(QMainWindow):
             self.keyboard.start()
 
     def stop_command(self):
-        self.current_script.end(self.ser)
+        self.current_script.end()
 
     def move_center(self):
         self.move(self.screen_rect.width() / 2 - self.frameSize().width() / 2,
