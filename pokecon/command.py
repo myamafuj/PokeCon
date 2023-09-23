@@ -40,6 +40,8 @@ class Command:
 
 # Python command
 class PythonCommand(Command):
+    NAME = None
+
     def __init__(self):
         super().__init__()
         self.input = None
@@ -61,14 +63,12 @@ class PythonCommand(Command):
                 self.finish()
         except StopThread:
             logger.info('-- finished successfully. --')
-        except:
+        except Exception as e:
             if self.input is None:
                 self.input = Input(ser)
-            logger.error('interrupt')
-            import traceback
-            traceback.print_exc()
+            logger.error(e, exc_info=True)
             self.input.end()
-            self.alive = False
+            self.finish()
 
     def start(self,
               ser: SerialSender,
@@ -84,12 +84,12 @@ class PythonCommand(Command):
 
     def send_stop_request(self):
         if self.check_if_alive():  # try if we can stop now
-            self.alive = False
             logger.info('-- sent a stop request. --')
+            self.alive = False
 
     # NOTE: Use this function if you want to get out from a command loop by yourself
     def finish(self):
-        self.alive = False
+        # self.alive = False
         self.end(self.input.ser)
 
     # press button at duration times(s)
@@ -127,7 +127,7 @@ class PythonCommand(Command):
             self.input = None
             self.thread = None
 
-            if not self.post_process is None:
+            if self.post_process is not None:
                 self.post_process()
                 self.post_process = None
 
@@ -153,10 +153,10 @@ class ImageProcPythonCommand(PythonCommand):
                             use_gray=True,
                             show_value=False,
                             area=None,
-                            tmp_area=None):
+                            tmpl_area=None):
 
-        if tmp_area is None:
-            tmp_area = []
+        if tmpl_area is None:
+            tmpl_area = []
         if area is None:
             area = []
 
@@ -169,7 +169,7 @@ class ImageProcPythonCommand(PythonCommand):
         path = TEMPLATE_PATH / template_path
         templ = cv2.imread(str(path),
                            cv2.IMREAD_GRAYSCALE if use_gray else cv2.IMREAD_COLOR)
-        templ = templ[tmp_area[2]:tmp_area[3], tmp_area[0]:tmp_area[1]] if tmp_area else templ
+        templ = templ[tmpl_area[2]:tmpl_area[3], tmpl_area[0]:tmpl_area[1]] if tmpl_area else templ
         w, h = templ.shape[1], templ.shape[0]
 
         method = cv2.TM_CCOEFF_NORMED

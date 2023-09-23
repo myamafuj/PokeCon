@@ -41,6 +41,7 @@ class InfoWindow(QWidget):
                             Qt.WindowType.WindowMinimizeButtonHint)
 
         # メインレイアウト
+        self.setFixedWidth(540)
         layout = QVBoxLayout()
 
         # 結果出力窓
@@ -72,6 +73,3 @@ class InfoWindow(QWidget):
 
     def clear_log(self):
         self.editor.clear()
-
-    def closeEvent(self, event):
-        event.accept()

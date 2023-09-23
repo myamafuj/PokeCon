@@ -11,7 +11,7 @@ logger = get_logger(__name__)
 class Capture:
     def __init__(self, camera_id, w, h, fps, path_dir):
         super().__init__()
-        self.src = cv2.VideoCapture(camera_id)
+        self.src = cv2.VideoCapture(camera_id, cv2.CAP_DSHOW)
         self.w = w
         self.h = h
         self.fps = fps
@@ -23,7 +23,7 @@ class Capture:
         self.ref, self.frame = self.src.read()
         return self.ref, self.frame
 
-    def isOpened(self):
+    def is_opened(self):
         return self.src.isOpened()
 
     def release(self):

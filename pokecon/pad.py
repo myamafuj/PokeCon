@@ -112,6 +112,7 @@ class Direction(Enum):
                 values.append(Tilt.DOWN)
             elif self.y > CENTER - 1:
                 values.append(Tilt.UP)
+
         elif self.stick == Stick.RIGHT:
             if self.x < CENTER:
                 values.append(Tilt.R_LEFT)
@@ -214,18 +215,18 @@ class SerialFormat:
     def str(self):
         # set bits array with stick flags
         send_btn = int(self.format['btn']) << 2
-        str_L = ''
+        str_l = ''
         if self.L_stick_changed:
             send_btn |= 0x2
-            str_L = format(self.format['lx'], 'x') + ' ' + format(self.format['ly'], 'x')
-        str_R = ''
+            str_l = format(self.format['lx'], 'x') + ' ' + format(self.format['ly'], 'x')
+        str_r = ''
         if self.R_stick_changed:
             send_btn |= 0x1
-            str_R = format(self.format['rx'], 'x') + ' ' + format(self.format['ry'], 'x')
+            str_r = format(self.format['rx'], 'x') + ' ' + format(self.format['ry'], 'x')
         str_btn = format(send_btn, '#06x')
         str_hat = str(int(self.format['hat']))
 
-        str_format = ' '.join([str_btn, str_hat, str_L, str_R])
+        str_format = ' '.join([str_btn, str_hat, str_l, str_r])
 
         self.L_stick_changed = False
         self.R_stick_changed = False
