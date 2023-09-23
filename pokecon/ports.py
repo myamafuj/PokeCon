@@ -24,7 +24,7 @@ class SerialSender:
     def close(self):
         self.ser.close()
 
-    def isOpen(self):
+    def is_open(self):
         return self.ser is not None and self.ser.isOpen()
 
     def write(self, row):
