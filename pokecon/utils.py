@@ -40,20 +40,14 @@ def get_scripts(path_dir=Path('scripts'), old=None):
 
 
 def get_available_camera_id():
-    # Get names of detected camera devices
-    capture_devices = QCameraInfo.availableCameras()
-    result = {}
-    cnt = 1
-    for device in capture_devices:
-        if device == QCameraInfo.defaultCamera():
-            result[0] = device.description()
-        else:
-            result[cnt] = device.description()
-            cnt += 1
+    result = {i: device.description() for i, device in enumerate(QCameraInfo.availableCameras())}
     if not result:
         raise RuntimeError('Cannot detect camera device')
     return result
 
 
 def get_available_ports():
-    return sorted([port for port, _, _ in list_ports.comports()])
+    result = sorted([port for port, _, _ in list_ports.comports()])
+    if not result:
+        raise RuntimeError('Cannot detect serial ports')
+    return result

@@ -29,12 +29,10 @@ class Command:
     def __init__(self):
         self.isRunning = False
 
-    @classmethod
-    def start(cls, ser, post_process=None):
+    def start(self, ser, post_process=None):
         pass
 
-    @classmethod
-    def end(cls, ser):
+    def end(self):
         pass
 
 
@@ -49,13 +47,10 @@ class PythonCommand(Command):
         self.alive = True
         self.post_process = None
 
-    @classmethod
-    def do(cls):
+    def do(self):
         pass
 
-    def do_safe(self, ser: SerialSender):
-        if self.input is None:
-            self.input = Input(ser)
+    def do_safe(self):
 
         try:
             if self.alive:
@@ -64,22 +59,20 @@ class PythonCommand(Command):
         except StopThread:
             logger.info('-- finished successfully. --')
         except Exception as e:
-            if self.input is None:
-                self.input = Input(ser)
             logger.error(e, exc_info=True)
-            self.input.end()
             self.finish()
 
     def start(self,
               ser: SerialSender,
               post_process: Callable = None):
+        self.input = Input(ser)
         self.alive = True
         self.post_process = post_process
-        if not self.thread:
-            self.thread = threading.Thread(target=self.do_safe, args=(ser,))
+        if self.thread is None:
+            self.thread = threading.Thread(target=self.do_safe)
             self.thread.start()
 
-    def end(self, ser):
+    def end(self):
         self.send_stop_request()
 
     def send_stop_request(self):
@@ -89,8 +82,8 @@ class PythonCommand(Command):
 
     # NOTE: Use this function if you want to get out from a command loop by yourself
     def finish(self):
-        # self.alive = False
-        self.end(self.input.ser)
+        self.alive = False
+        self.end()
 
     # press button at duration times(s)
     def press(self, buttons, duration=0.1, wait=0.1):
@@ -122,19 +115,22 @@ class PythonCommand(Command):
         self.check_if_alive()
 
     def check_if_alive(self):
-        if not self.alive:
-            self.input.end()
-            self.input = None
-            self.thread = None
+        if self.alive:
+            return True
+        else:
+            if self.input is not None:
+                self.input.end()
+                self.input = None
+
+            if self.thread is not None:
+                self.thread = None
 
             if self.post_process is not None:
                 self.post_process()
                 self.post_process = None
 
             # raise exception for exit working thread
-            raise StopThread('exit successfully')
-        else:
-            return True
+            raise StopThread()
 
 
 class ImageProcPythonCommand(PythonCommand):

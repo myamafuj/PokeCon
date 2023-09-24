@@ -14,8 +14,8 @@ class SerialSender:
 
     def open(self, port):
         try:
-            logger.info(f'connecting to {port}')
             self.ser = Serial(port, 9600)
+            logger.info(f'Successfully connected to {port}')
             return True
         except IOError:
             logger.exception('COM Port: cannot be established')
