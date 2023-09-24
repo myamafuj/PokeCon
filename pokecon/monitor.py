@@ -36,9 +36,9 @@ class InfoWindow(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle('Info')
-        self.setWindowFlags(Qt.WindowType.CustomizeWindowHint |
-                            Qt.WindowType.WindowCloseButtonHint |
-                            Qt.WindowType.WindowMinimizeButtonHint)
+        self.setWindowFlags(Qt.Window |
+                            Qt.WindowType.CustomizeWindowHint |
+                            Qt.WindowType.WindowCloseButtonHint)
 
         # メインレイアウト
         self.setFixedWidth(540)
