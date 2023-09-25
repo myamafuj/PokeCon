@@ -1,6 +1,4 @@
-import ctypes
 import logging
-from pathlib import Path
 
 import pyaudio
 from PySide2.QtCore import (
@@ -90,7 +88,7 @@ class Window(QMainWindow):
         super().__init__(parent)
         # unique settings
         # path
-        self.root = Path(root).parent
+        self.root = root
         # conf
         self.config = Config()
         self.config.read()
@@ -153,19 +151,23 @@ class Window(QMainWindow):
             self.display_size_list = [(1280, 720), (960, 540)]
         else:
             self.display_size_list = [(1920, 1080), (1280, 720), (960, 540)]
-        self.display_size = (self.config.pyside.width, self.config.pyside.height)
+        self.display_size = (self.config.app.width, self.config.app.height)
         self.settings_window = SettingsWindow(self)
 
         # title
         self.setWindowTitle(f'PokeCon v{VER}')
-        self.setWindowIcon(QIcon(str(self.root.joinpath('icon.png'))))
-        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(f'myamafuj.pokecon.{VER}')
+        self.setWindowIcon(QIcon(str(self.root.joinpath('assets/icon.png'))))
+        try:
+            from ctypes import windll
+            windll.shell32.SetCurrentProcessExplicitAppUserModelID(f'myamafuj.pokecon.{VER}')
+        except ImportError:
+            pass
 
         # label for the display camera
         self.label_video = QVideoLabel()
-        self.label_video.setMinimumSize(self.config.pyside.width, self.config.pyside.height)
+        self.label_video.setMinimumSize(self.config.app.width, self.config.app.height)
         self.label_video.setMaximumSize(self.screen_rect.size())
-        self.label_video.resize(self.config.pyside.width, self.config.pyside.height)
+        self.label_video.resize(self.config.app.width, self.config.app.height)
 
         # image group
         self.group_image = QGroupBox('screenshot')
@@ -232,7 +234,7 @@ class Window(QMainWindow):
 
         # video
         self.video_timer = QTimer()
-        millisecond = int(1000.0 / self.config.pyside.fps)
+        millisecond = int(1000.0 / self.config.app.fps)
         self.video_timer.setTimerType(Qt.CoarseTimer)  # Qt.PreciseTimerとの負荷比較したい
         self.video_timer.timeout.connect(self.next_frame)
         self.video_timer.start(millisecond)
@@ -398,12 +400,10 @@ class Window(QMainWindow):
         self.info_window.show()
 
     def set_display_size(self, size: str):
-        self.config.pyside.width, self.config.pyside.height = (
-            tuple([int(x) for x in size.split('x')])
-        )
-        self.label_video.setMinimumSize(self.config.pyside.width, self.config.pyside.height)
-        self.label_video.setMaximumSize(self.config.pyside.width, self.config.pyside.height)
-        self.label_video.resize(self.config.pyside.width, self.config.pyside.height)
+        self.config.app.width, self.config.app.height = tuple([int(x) for x in size.split('x')])
+        self.label_video.setMinimumSize(self.config.app.width, self.config.app.height)
+        self.label_video.setMaximumSize(self.config.app.width, self.config.app.height)
+        self.label_video.resize(self.config.app.width, self.config.app.height)
         self.widget.adjustSize()
         self.adjustSize()
         self.label_video.setMaximumSize(self.screen_rect.size())
@@ -459,7 +459,7 @@ class Window(QMainWindow):
         self.config.write()
         if self.current_script is not None:
             self.stop_command()
-        event.accept()
+        super().closeEvent(event)
 
 
 class SettingsWindow(QWidget):
@@ -509,7 +509,7 @@ class SettingsWindow(QWidget):
         for key in self.parent().display_size_list:
             self.combobox_display.addItem('x'.join(map(str, key)))
         self.combobox_display.setCurrentText(
-            f'{self.parent().config.pyside.width}x{self.parent().config.pyside.height}'
+            f'{self.parent().config.app.width}x{self.parent().config.app.height}'
         )
 
         display_layout.addWidget(self.combobox_display, 10)
