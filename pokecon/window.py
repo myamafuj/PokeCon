@@ -40,7 +40,7 @@ from pokecon.ports import SerialSender
 from pokecon.utils import get_scripts, get_available_camera_id, get_available_ports
 
 
-VER = '1.3.1'
+VER = '2.0.0'
 
 
 class MouseController(QObject):
