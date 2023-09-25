@@ -28,7 +28,7 @@ def get_scripts(path_dir=Path('scripts'), old=None):
     scripts = {}
     files = glob(str(path_dir.joinpath('**', '*.py')), recursive=True)
     for f in files:
-        name = '.'.join(f[:-3].split(os.sep)).replace('...', '..')
+        name = '.'.join(f[:-3].split(os.sep))
         m = importlib.import_module(name)
         c = _get_class(m)
         if old and c.NAME in old:

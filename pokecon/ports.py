@@ -18,7 +18,7 @@ class SerialSender:
             logger.info(f'Successfully connected to {port}')
             return True
         except IOError:
-            logger.exception('COM Port: cannot be established')
+            logger.error('COM Port: cannot be established', exc_info=True)
             return False
 
     def close(self):
@@ -31,9 +31,9 @@ class SerialSender:
         try:
             self.ser.write((row + '\r\n').encode('utf-8'))
         except SerialException:
-            logger.exception()
+            logger.error('SerialException', exc_info=True)
         except AttributeError:
-            logger.exception('Attempting to use a port that is not open')
+            logger.error('Attempting to use a port that is not open', exc_info=True)
 
         # Show sending serial datas
         if self.show_serial:

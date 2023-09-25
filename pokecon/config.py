@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 @dataclass
-class PysideConfig:
+class AppConfig:
     width: int = 1280
     height: int = 720
     fps: int = 60
@@ -30,8 +30,8 @@ class AudioConfig:
 
 class Config:
     def __init__(self):
-        self.path = Path('conf/pokecon.ini')
-        self.pyside: PysideConfig = PysideConfig()
+        self.path: Path = Path('conf/pokecon.ini')
+        self.app: AppConfig = AppConfig()
         self.serial: SerialConfig = SerialConfig()
         self.capture: CaptureConfig = CaptureConfig()
         self.audio: AudioConfig = AudioConfig()
@@ -40,7 +40,7 @@ class Config:
         if self.path.exists():
             config = ConfigParser()
             config.read(self.path, encoding='utf-8')
-            for section in ['pyside', 'serial', 'capture', 'audio']:
+            for section in ['app', 'serial', 'capture', 'audio']:
                 r = eval(f'self.{section}')
                 for k in vars(r):
                     attr = type(getattr(r, k))
@@ -59,7 +59,7 @@ class Config:
     def write(self):
         self.path.parent.mkdir(exist_ok=True)
         config = ConfigParser()
-        for section in ['pyside', 'serial', 'capture', 'audio']:
+        for section in ['app', 'serial', 'capture', 'audio']:
             r = eval(f'self.{section}')
             config[section] = {}
             for k in vars(r):
