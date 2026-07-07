@@ -451,8 +451,9 @@ class Window(QMainWindow):
         self.ser.close()
         self.video_timer.stop()
         self.cap.release()
-        self.stream.stop_stream()
-        self.stream.close()
+        if self.stream is not None:
+            self.stream.stop_stream()
+            self.stream.close()
         self.p.terminate()
         self.info_window.close()
         self.settings_window.close()
