@@ -451,8 +451,9 @@ class Window(QMainWindow):
         self.ser.close()
         self.video_timer.stop()
         self.cap.release()
-        self.stream.stop_stream()
-        self.stream.close()
+        if self.stream is not None:
+            self.stream.stop_stream()
+            self.stream.close()
         self.p.terminate()
         self.info_window.close()
         self.settings_window.close()
@@ -482,6 +483,10 @@ class SettingsWindow(QWidget):
         self.combobox_video = QComboBox()
         for key in self.parent().cap_devices.values():
             self.combobox_video.addItem(key)
+        camera_ids = list(self.parent().cap_devices.keys())
+        self.combobox_video.setCurrentIndex(
+            camera_ids.index(self.parent().config.capture.camera_id)
+        )
 
         video_layout.addWidget(self.combobox_video, 20)
 
@@ -522,6 +527,22 @@ class SettingsWindow(QWidget):
         self.setLayout(layout)
 
         self.combobox_display.currentTextChanged.connect(self.parent().set_display_size)
+        self.combobox_video.currentIndexChanged.connect(self.change_camera)
+        self.combobox_ports.currentTextChanged.connect(self.change_port)
+
+    def change_camera(self, index):
+        camera_ids = list(self.parent().cap_devices.keys())
+        if 0 <= index < len(camera_ids):
+            camera_id = camera_ids[index]
+            if camera_id != self.parent().config.capture.camera_id:
+                self.parent().config.capture.camera_id = camera_id
+                self.parent().cap.change_camera(camera_id)
+
+    def change_port(self, port):
+        if port:
+            self.parent().config.serial.port = port
+            self.parent().ser.close()
+            self.parent().ser.open(port)
 
     def closeEvent(self, event) -> None:
         if self.parent().screen_rect.width() <= 1920:
