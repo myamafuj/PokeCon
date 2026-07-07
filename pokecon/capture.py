@@ -23,6 +23,10 @@ class Capture:
         self.ref, self.frame = self.src.read()
         return self.ref, self.frame
 
+    def change_camera(self, camera_id):
+        self.src.release()
+        self.src = cv2.VideoCapture(camera_id, cv2.CAP_DSHOW)
+
     def is_opened(self):
         return self.src.isOpened()
 
