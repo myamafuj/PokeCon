@@ -138,6 +138,14 @@ class ImageProcPythonCommand(PythonCommand):
         super().__init__()
         self.cap = cap
 
+    # GUIの描画ループが更新した最新フレームのコピーを返す
+    # 未取得の場合のみ直接読み出す（GUI起動直後など）
+    def get_frame(self):
+        frame = self.cap.frame
+        if frame is None:
+            _, frame = self.cap.read()
+        return frame.copy()
+
     # Judge if current screenshot contains a template using template matching
     # It's recommended that you use gray_scale option
     # unless the template color wouldn't be cared for performance
@@ -157,7 +165,9 @@ class ImageProcPythonCommand(PythonCommand):
             area = []
 
         # Read a current image
-        _, src = self.cap.read()
+        # NOTE: VideoCapture.read()はスレッドセーフではなくGUIの描画ループと競合するため、
+        #       GUI側が更新している最新フレームを参照する
+        src = self.get_frame()
         src = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY) if use_gray else src
         src = src[area[2]:area[3], area[0]:area[1]] if area else src
 
