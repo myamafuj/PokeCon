@@ -99,6 +99,16 @@ class Direction(Enum):
         else:
             return False
 
+    # 列挙にない任意角度のスティック方向を生成する
+    # degreeは右方向が0度・上方向が90度（既存メンバーと同じ座標系）
+    @staticmethod
+    def custom(stick, degree, name='CUSTOM'):
+        d = object.__new__(Direction)
+        d._name_ = name
+        d._value_ = (stick, degree)
+        d.__init__(stick, degree)
+        return d
+
     @property
     def tilt(self):
         values = []
