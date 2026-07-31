@@ -3,16 +3,25 @@ name = "pokecon"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.13"
 dependencies = [
-    "numpy<2",
-    "opencv-python~=4.8.0.76",
+    "numpy>=2",
+    "opencv-python~=4.10",
     "pyaudio~=0.2.13",
     "pynput~=1.7.6",
     "pyserial~=3.5",
-    "pyside2~=5.15.2.1",
+    "pyside6~=6.9",
     "pytesseract~=0.3.10",
 ]
 
 [project.scripts]
 pokecon = "app:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

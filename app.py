@@ -2,7 +2,7 @@ import os
 import sys
 from pathlib import Path
 
-from PySide2.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication
 
 from pokecon.window import Window
 
@@ -13,7 +13,7 @@ def main():
     app = QApplication(sys.argv)
     w = Window(root)
     w.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 if __name__ == '__main__':

@@ -4,7 +4,7 @@ import os
 from glob import glob
 from pathlib import Path
 
-from PySide2.QtMultimedia import QCameraInfo
+from PySide6.QtMultimedia import QMediaDevices
 from serial.tools import list_ports
 
 from pokecon.command import PythonCommand
@@ -40,7 +40,7 @@ def get_scripts(path_dir=Path('scripts'), old=None):
 
 
 def get_available_camera_id():
-    result = {i: device.description() for i, device in enumerate(QCameraInfo.availableCameras())}
+    result = {i: device.description() for i, device in enumerate(QMediaDevices.videoInputs())}
     if not result:
         raise RuntimeError('Cannot detect camera device')
     return result

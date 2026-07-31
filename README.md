@@ -1,10 +1,24 @@
 # PokeCon
 
 ## 概要
-コントローラー部分は[こちらのPoke-Controller](https://github.com/KawaSwitch/Poke-Controller)を参考にPython3.10+PySide2で動作するよう作り直しています
+コントローラー部分は[こちらのPoke-Controller](https://github.com/KawaSwitch/Poke-Controller)を参考にPython3.13+PySide6で動作するよう作り直しています
 
 
 <img width="655" alt="Untitled" src="https://github.com/myamafuj/PokeCon/assets/24750772/fb1b281e-b27b-4bc3-9c96-45a9e9e42346">
+
+## 環境構築と実行
+プロジェクト管理には[uv](https://docs.astral.sh/uv/)を使用しています
+
+```sh
+# 依存関係のインストール(Python3.13も自動で用意されます)
+uv sync
+
+# アプリの起動
+uv run main.py
+
+# テストの実行
+uv run pytest
+```
 
 ## UIと機能
 先ずは動くものを目指し、サポート範囲を絞っています
@@ -12,7 +26,7 @@
 ### Poke-Controllerとの違い
 - OSサポートはWindowsのみ
 - Mcuコマンドの削除
-- GUIのベースをTkinterからPySide2に変更
+- GUIのベースをTkinterからPySide6に変更
 - UIレイアウトの変更
 - Lower camel caseからSnake caseに変更
 
@@ -24,11 +38,10 @@
 1. PySide6でのモニターのプライマリー・セカンダリーの認識がおかしい
 2. キャプチャー動画のスケールが1.5倍になる
 
-という2点の問題が発生したことからPySide2に変更をしました
+という2点の問題が発生したことから一時PySide2(Python3.10)に変更していました
 
-PySide2がPython3.10にまでしか対応していないためPython3.11も変更になりました
-
-2.については仕様かもしれませんが、1.の方はPyQt6でも同じ現象が起きたため、Qt6の問題と思われます
+現在はPySide6のバージョンアップ(6.11系)に合わせてPython3.13+PySide6に再移行しています
+上記の高DPI環境での問題が再発しないかは引き続き確認中です
 
 また、自分のキャプチャーボードがswitchの画面も1980x1080 60fpsでしかチャプチャーしないため、
 テンプレートマッチの画像も1980x1080に対応したものを自分で用意する必要がありました
@@ -70,9 +83,7 @@ PythonロガーのINFOレベル以上のログが表示されるウィンドウ�
 
 が選択できます
 
-キャプチャーデバイスとシリアルポートは読み込みが成功した1番目のものをデフォルトで使うようにしています
-
-将来的には設定ファイルに保存・読込ができるようにする予定です
+キャプチャーデバイスとシリアルポートは設定画面から切り替えることができ、選択内容は`conf/pokecon.ini`に保存され次回起動時に読み込まれます
 
 
 

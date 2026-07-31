@@ -1,15 +1,15 @@
 import logging
 
-from PySide2.QtCore import (
+from PySide6.QtCore import (
     QObject,
     Qt,
     Signal,
     Slot
 )
-from PySide2.QtGui import (
+from PySide6.QtGui import (
     QTextCursor
 )
-from PySide2.QtWidgets import (
+from PySide6.QtWidgets import (
     QPlainTextEdit,
     QPushButton,
     QSizePolicy,
