@@ -1,7 +1,7 @@
 import logging
 
 import pyaudio
-from PySide2.QtCore import (
+from PySide6.QtCore import (
     QEvent,
     QObject,
     Qt,
@@ -11,13 +11,13 @@ from PySide2.QtCore import (
     Signal,
     Slot
 )
-from PySide2.QtGui import (
+from PySide6.QtGui import (
     QIcon,
     QImage,
     QPixmap,
     QDesktopServices
 )
-from PySide2.QtWidgets import (
+from PySide6.QtWidgets import (
     QApplication,
     QComboBox,
     QGroupBox,
@@ -381,12 +381,12 @@ class Window(QMainWindow):
             self.config.audio.volume = True
 
     def move_center(self):
-        self.move(self.screen_rect.width() / 2 - self.frameSize().width() / 2,
-                  self.screen_rect.height() / 2 - self.frameSize().height() / 2)
+        self.move(int(self.screen_rect.width() / 2 - self.frameSize().width() / 2),
+                  int(self.screen_rect.height() / 2 - self.frameSize().height() / 2))
 
     def move_aside(self):
-        self.move(self.screen_rect.width() / 3 + self.frameSize().width() / 3,
-                  self.screen_rect.height() / 2 - self.frameSize().height() / 2)
+        self.move(int(self.screen_rect.width() / 3 + self.frameSize().width() / 3),
+                  int(self.screen_rect.height() / 2 - self.frameSize().height() / 2))
 
     def move_log_window(self):
         _, top, right, _ = self.frameGeometry().getCoords()
